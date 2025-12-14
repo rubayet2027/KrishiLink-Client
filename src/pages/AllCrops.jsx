@@ -105,7 +105,7 @@ const AllCrops = () => {
           <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
             <div className="flex flex-wrap gap-4 items-center">
               {/* Crop Type Filter */}
-              <div className="flex-1 min-w-[200px]">
+              <div className="flex-1 min-w-50">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Crop Type
                 </label>
@@ -123,7 +123,7 @@ const AllCrops = () => {
               </div>
 
               {/* Sort By */}
-              <div className="flex-1 min-w-[200px]">
+              <div className="flex-1 min-w-50">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Sort By
                 </label>
