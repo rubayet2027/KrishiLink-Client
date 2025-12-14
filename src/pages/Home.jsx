@@ -6,8 +6,10 @@ import CropCard from '../components/crops/CropCard';
 import SectionTitle from '../components/ui/SectionTitle';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { cropsAPI } from '../services/api';
+import useAuth from '../hooks/useAuth';
 
 const Home = () => {
+  const { user } = useAuth();
   const [featuredCrops, setFeaturedCrops] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -115,13 +117,13 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-green-600 py-12">
+      <section className="bg-green-600 py-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</p>
-                <p className="text-green-100 font-medium">{stat.label}</p>
+                <p className="text-5xl md:text-6xl font-bold text-white mb-3">{stat.value}</p>
+                <p className="text-green-100 text-lg font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -185,33 +187,35 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-linear-to-r from-green-600 to-green-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="text-green-100 text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of farmers who are already growing their business with KrishiLink. 
-            Register today and start connecting with buyers.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 bg-white text-green-600 hover:bg-green-50 px-8 py-3 rounded-lg font-semibold transition-all"
-            >
-              <HiUsers />
-              Register Now
-            </Link>
-            <Link
-              to="/crops"
-              className="inline-flex items-center gap-2 border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-3 rounded-lg font-semibold transition-all"
-            >
-              Browse Crops
-            </Link>
+      {/* CTA Section - Only show when user is not logged in */}
+      {!user && (
+        <section className="py-20 bg-linear-to-r from-green-600 to-green-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Start Your Journey?
+            </h2>
+            <p className="text-green-100 text-lg mb-8 max-w-2xl mx-auto">
+              Join thousands of farmers who are already growing their business with KrishiLink. 
+              Register today and start connecting with buyers.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 bg-white text-green-600 hover:bg-green-50 px-8 py-3 rounded-lg font-semibold transition-all"
+              >
+                <HiUsers />
+                Register Now
+              </Link>
+              <Link
+                to="/crops"
+                className="inline-flex items-center gap-2 border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-3 rounded-lg font-semibold transition-all"
+              >
+                Browse Crops
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };
