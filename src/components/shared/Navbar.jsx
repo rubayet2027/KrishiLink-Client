@@ -1,21 +1,47 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX, HiUser, HiLogout, HiPlus, HiCollection, HiHeart } from 'react-icons/hi';
 import { FaSeedling } from 'react-icons/fa';
-import useAuth from '../../hooks/useAuth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import auth from '../../firebase/firebase.config';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const { user, logOut } = useAuth();
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (!user) {
+        setShowDropdown(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
-      await logOut();
-      toast.success('Logged out successfully');
+      await signOut(auth);
       setShowDropdown(false);
-    } catch {
+      setIsOpen(false);
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
       toast.error('Failed to logout');
     }
   };
@@ -65,40 +91,40 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <NavLinkItem key={link.path} {...link} />
             ))}
-            {user && privateLinks.map((link) => (
+            {currentUser && privateLinks.map((link) => (
               <NavLinkItem key={link.path} {...link} />
             ))}
           </div>
 
           {/* Auth Section */}
           <div className="hidden md:flex items-center gap-4">
-            {user ? (
-              <div className="relative">
+            {currentUser ? (
+              <div className="relative z-50" ref={dropdownRef}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2 focus:outline-none"
                 >
-                  {user.photoURL ? (
+                  {currentUser.photoURL ? (
                     <img
-                      src={user.photoURL}
-                      alt={user.displayName}
+                      src={currentUser.photoURL}
+                      alt={currentUser.displayName}
                       className="w-10 h-10 rounded-full border-2 border-green-500 object-cover"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-                      {user.displayName?.charAt(0) || user.email?.charAt(0)}
+                      {currentUser.displayName?.charAt(0) || currentUser.email?.charAt(0)}
                     </div>
                   )}
                 </button>
 
                 {/* Dropdown Menu */}
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border animate-fadeIn">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border animate-fadeIn z-50">
                     <div className="px-4 py-2 border-b">
                       <p className="font-medium text-gray-800 truncate">
-                        {user.displayName || 'User'}
+                        {currentUser.displayName || 'User'}
                       </p>
-                      <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                      <p className="text-sm text-gray-500 truncate">{currentUser.email}</p>
                     </div>
                     <Link
                       to="/profile"
@@ -110,7 +136,7 @@ const Navbar = () => {
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-left"
                     >
                       <HiLogout className="text-lg" />
                       Logout
@@ -153,7 +179,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <NavLinkItem key={link.path} {...link} mobile />
             ))}
-            {user && (
+            {currentUser && (
               <>
                 <div className="border-t my-2 pt-2">
                   {privateLinks.map((link) => (
@@ -187,7 +213,7 @@ const Navbar = () => {
                 </div>
               </>
             )}
-            {!user && (
+            {!currentUser && (
               <div className="border-t my-2 pt-2 space-y-2">
                 <Link
                   to="/login"
@@ -207,14 +233,6 @@ const Navbar = () => {
             )}
           </div>
         </div>
-      )}
-
-      {/* Click outside to close dropdown */}
-      {showDropdown && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowDropdown(false)}
-        />
       )}
     </nav>
   );
