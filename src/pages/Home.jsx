@@ -13,20 +13,23 @@ const Home = () => {
   const [featuredCrops, setFeaturedCrops] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchFeaturedCrops = async () => {
-      try {
-        const response = await cropsAPI.getAll({ limit: 6 });
-        setFeaturedCrops(response.data);
-      } catch (error) {
-        console.error('Error fetching featured crops:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchFeaturedCrops = async () => {
+    try {
+      const response = await cropsAPI.getAll({ limit: 6 });
+      const crops = response?.data?.data;
+      setFeaturedCrops(Array.isArray(crops) ? crops : []);
+    } catch (error) {
+      console.error('Error fetching featured crops:', error);
+      setFeaturedCrops([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchFeaturedCrops();
-  }, []);
+  fetchFeaturedCrops();
+}, []);
+
 
   const features = [
     {

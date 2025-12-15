@@ -66,55 +66,61 @@ api.interceptors.response.use(
 // Crops API
 export const cropsAPI = {
   // Get all crops with optional filters
-  getAll: (params = {}) => api.get('/crops', { params }),
+  getAll: (params = {}) => api.get('/api/crops', { params }),
   
   // Get single crop by ID
-  getById: (id) => api.get(`/crops/${id}`),
+  getById: (id) => api.get(`/api/crops/${id}`),
   
   // Create new crop (requires auth)
-  create: (data) => api.post('/crops', data),
+  create: (data) => api.post('/api/crops', data),
   
   // Update crop (requires auth)
-  update: (id, data) => api.put(`/crops/${id}`, data),
+  update: (id, data) => api.put(`/api/crops/${id}`, data),
   
   // Delete crop (requires auth)
-  delete: (id) => api.delete(`/crops/${id}`),
+  delete: (id) => api.delete(`/api/crops/${id}`),
   
   // Get crops by user email
-  getByUser: (email) => api.get(`/crops/user/${email}`),
+  getByUser: (email) => api.get(`/api/crops/user/${email}`),
+
+  // Get user's own posts
+  getMyPosts: () => api.get('/api/crops/my-posts'),
+
+  // Get categories
+  getCategories: () => api.get('/api/crops/categories'),
   
   // Search crops
-  search: (query) => api.get('/crops/search', { params: { q: query } }),
+  search: (query) => api.get('/api/crops/search', { params: { q: query } }),
 };
 
 // Interests API
 export const interestsAPI = {
   // Submit interest for a crop
-  submit: (data) => api.post('/interests', data),
+  submit: (data) => api.post('/api/interests', data),
   
   // Get interests for a specific crop (owner only)
-  getByCrop: (cropId) => api.get(`/interests/crop/${cropId}`),
+  getByCrop: (cropId) => api.get(`/api/interests/crop/${cropId}`),
   
   // Get interests submitted by user
-  getByUser: (email) => api.get(`/interests/user/${email}`),
+  getByUser: (email) => api.get(`/api/interests/user/${email}`),
   
   // Check if user has already submitted interest
-  checkSubmitted: (cropId, email) => api.get(`/interests/check/${cropId}/${email}`),
+  checkSubmitted: (cropId, email) => api.get(`/api/interests/check/${cropId}/${email}`),
   
   // Update interest status (owner only)
-  updateStatus: (id, status) => api.patch(`/interests/${id}`, { status }),
+  updateStatus: (id, status) => api.patch(`/api/interests/${id}`, { status }),
 };
 
 // Users API
 export const usersAPI = {
   // Create or update user
-  saveUser: (data) => api.post('/users', data),
+  saveUser: (data) => api.post('/api/users', data),
   
   // Get user by email
-  getByEmail: (email) => api.get(`/users/${email}`),
+  getByEmail: (email) => api.get(`/api/users/${email}`),
   
   // Update user profile
-  update: (email, data) => api.put(`/users/${email}`, data),
+  update: (email, data) => api.put(`/api/users/${email}`, data),
 };
 
 export default api;

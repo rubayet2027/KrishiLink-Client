@@ -24,7 +24,6 @@ const AllCrops = () => {
     'Grains',
     'Pulses',
     'Spices',
-    'Rice',
     'Others'
   ];
 
@@ -34,11 +33,23 @@ const AllCrops = () => {
     try {
       const params = {};
       if (searchTerm) params.search = searchTerm;
-      if (selectedType && selectedType !== 'All Types') params.type = selectedType;
-      if (sortBy) params.sort = sortBy;
+      if (selectedType && selectedType !== 'All Types') params.category = selectedType.toLowerCase();
+      if (sortBy === 'newest') {
+        params.sortBy = 'createdAt';
+        params.sortOrder = 'desc';
+      } else if (sortBy === 'oldest') {
+        params.sortBy = 'createdAt';
+        params.sortOrder = 'asc';
+      } else if (sortBy === 'price-low') {
+        params.sortBy = 'pricePerUnit';
+        params.sortOrder = 'asc';
+      } else if (sortBy === 'price-high') {
+        params.sortBy = 'pricePerUnit';
+        params.sortOrder = 'desc';
+      }
 
       const response = await cropsAPI.getAll(params);
-      setCrops(response.data);
+      setCrops(response.data?.data || response.data || []);
     } catch (err) {
       setError('Failed to fetch crops. Please try again.');
       console.error('Error fetching crops:', err);
