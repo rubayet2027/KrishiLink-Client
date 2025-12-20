@@ -32,7 +32,7 @@ const MyPosts = () => {
         pricePerUnit: crop.pricePerUnit,
         quantity: crop.quantity,
         location: crop.location,
-        cropImage: crop.image || crop.imageUrl || '',
+        cropImage: Array.isArray(crop.image) ? (crop.image[0] || '') : (crop.image || crop.imageUrl || ''),
       }));
       setCrops(crops);
     } catch (err) {
