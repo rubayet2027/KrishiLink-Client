@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi';
 import { FcGoogle } from 'react-icons/fc';
@@ -19,9 +19,13 @@ const Login = () => {
     password: ''
   });
 
-  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, from, navigate]);
+
   if (user) {
-    navigate(from, { replace: true });
     return null;
   }
 
