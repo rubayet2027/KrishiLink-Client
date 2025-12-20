@@ -17,8 +17,13 @@ useEffect(() => {
   const fetchFeaturedCrops = async () => {
     try {
       const response = await cropsAPI.getAll({ limit: 6 });
-      const crops = response?.data?.data;
-      setFeaturedCrops(Array.isArray(crops) ? crops : []);
+      // Support both array and object response for backward compatibility
+      let crops = response?.data?.data;
+      if (!Array.isArray(crops)) {
+        // Try response.data if .data.data is not an array
+        crops = Array.isArray(response?.data) ? response.data : [];
+      }
+      setFeaturedCrops(crops);
     } catch (error) {
       console.error('Error fetching featured crops:', error);
       setFeaturedCrops([]);
@@ -169,23 +174,26 @@ useEffect(() => {
           {loading ? (
             <LoadingSpinner fullScreen={false} />
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredCrops.map((crop) => (
-                  <CropCard key={crop._id} crop={crop} />
-                ))}
-              </div>
-              
-              <div className="text-center mt-12">
-                <Link
-                  to="/crops"
-                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all"
-                >
-                  View All Crops
-                  <HiArrowRight />
-                </Link>
-              </div>
-            </>
+            Array.isArray(featuredCrops) && featuredCrops.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {featuredCrops.map((crop) => (
+                    <CropCard key={crop._id} crop={crop} />
+                  ))}
+                </div>
+                <div className="text-center mt-12">
+                  <Link
+                    to="/crops"
+                    className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all"
+                  >
+                    View All Crops
+                    <HiArrowRight />
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div className="text-center text-gray-500 py-12">No featured crops found.</div>
+            )
           )}
         </div>
       </section>

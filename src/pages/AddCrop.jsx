@@ -20,12 +20,12 @@ const AddCrop = () => {
   const [imagePreview, setImagePreview] = useState('');
 
   const cropTypes = [
-    'Vegetables',
-    'Fruits',
-    'Grains',
-    'Pulses',
-    'Spices',
-    'Rice',
+    'vegetables',
+    'fruits',
+    'grains',
+    'pulses',
+    'spices',
+    'rice',
     'Others'
   ];
 
@@ -88,20 +88,38 @@ const AddCrop = () => {
 
     setLoading(true);
     try {
+
+      // Map frontend fields to backend API fields
       const cropData = {
-        ...formData,
+        title: formData.cropName,
+        description: formData.description,
+        category: formData.cropType,
+        quantity: parseFloat(formData.quantity),
         pricePerUnit: parseFloat(formData.pricePerUnit),
-        ownerName: user.displayName,
-        ownerEmail: user.email,
-        ownerPhoto: user.photoURL,
-        createdAt: new Date().toISOString()
+        location: formData.location,
+        harvestDate: formData.harvestDate,
+        imageUrl: formData.cropImage,
+        // Optionally add unit and isOrganic if you want
+        // unit: 'kg',
+        // isOrganic: false,
       };
 
-      await cropsAPI.create(cropData);
-      toast.success('Crop added successfully!');
-      navigate('/my-posts');
+      const response = await cropsAPI.create(cropData);
+      console.log('Crop POST response:', response);
+      if (response && response.status === 201) {
+        toast.success('Crop added successfully!');
+        navigate('/my-posts');
+      } else {
+        toast.error('Failed to add crop. Please try again.');
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add crop');
+      if (error.response) {
+        toast.error(error.response.data?.message || 'Failed to add crop');
+      } else if (error.request) {
+        toast.error('No response from server. Please check your connection.');
+      } else {
+        toast.error('Error: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
