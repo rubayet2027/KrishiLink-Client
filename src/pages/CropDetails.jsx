@@ -230,16 +230,16 @@ const CropDetails = () => {
                 {cropOwner.photoURL ? (
                   <img
                     src={cropOwner.photoURL}
-                    alt={cropOwner.name}
+                    alt={cropOwner.displayName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-green-200"
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-2xl font-bold">
-                    {cropOwner.name?.charAt(0) || cropOwner.email?.charAt(0) || '?'}
+                    {cropOwner.displayName?.charAt(0) || cropOwner.email?.charAt(0) || '?'}
                   </div>
                 )}
                 <div>
-                  <p className="font-bold text-gray-800">{cropOwner.name || 'Unknown'}</p>
+                  <p className="font-bold text-gray-800">{cropOwner.displayName || 'Unknown'}</p>
                   <p className="text-sm text-gray-500">Verified Farmer</p>
                 </div>
               </div>

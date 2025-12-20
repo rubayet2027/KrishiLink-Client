@@ -42,26 +42,18 @@ const InterestForm = ({ crop, onSubmitSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!formData.phone.trim()) {
       toast.error('Please enter your phone number');
       return;
     }
-
     setLoading(true);
     try {
-      await interestsAPI.submit({
-        cropId: crop._id,
-        cropName: crop.cropName,
-        buyerName: user.displayName,
-        buyerEmail: user.email,
-        buyerPhoto: user.photoURL,
+      // POST to /api/interests/:cropId with required fields
+      await interestsAPI.submit(crop._id, {
+        requestedQuantity: 1, // or allow user to input quantity
         phone: formData.phone,
-        message: formData.message,
-        ownerEmail: crop.ownerEmail,
-        status: 'pending'
+        message: formData.message
       });
-
       toast.success('Interest submitted successfully!');
       setHasSubmitted(true);
       onSubmitSuccess?.();
