@@ -120,11 +120,18 @@ const CropDetails = () => {
             {/* Image Section */}
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
               <div className="relative h-100">
-                <img
-                  src={Array.isArray(images) && images.length > 0 ? images[0] : ''}
-                  alt={name}
-                  className="w-full h-full object-cover"
-                />
+                {(() => {
+                  const imageSrc = Array.isArray(images) && images[0]
+                    ? images[0]
+                    : (crop.image || null);
+                  return imageSrc ? (
+                    <img
+                      src={imageSrc}
+                      alt={name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null;
+                })()}
                 <div className="absolute top-4 left-4">
                   <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
                     <FaLeaf />

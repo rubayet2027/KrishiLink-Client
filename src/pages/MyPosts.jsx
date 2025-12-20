@@ -41,7 +41,7 @@ const MyPosts = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.email]);
+  }, []);
 
   useEffect(() => {
     if (user?.email) {
