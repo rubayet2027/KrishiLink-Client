@@ -23,8 +23,18 @@ const MyPosts = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await cropsAPI.getByUser(user.email);
-      setCrops(response.data);
+      const response = await cropsAPI.getMyPosts();
+      // Map backend fields to UI fields for compatibility
+      const crops = (response.data?.data || []).map(crop => ({
+        _id: crop._id,
+        cropName: crop.name || crop.title || '',
+        cropType: crop.category || '',
+        pricePerUnit: crop.pricePerUnit,
+        quantity: crop.quantity,
+        location: crop.location,
+        cropImage: crop.image || crop.imageUrl || '',
+      }));
+      setCrops(crops);
     } catch (err) {
       setError('Failed to load your crops. Please try again.');
       console.error('Error fetching crops:', err);

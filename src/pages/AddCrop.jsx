@@ -30,39 +30,40 @@ const AddCrop = () => {
   ];
 
   const [formData, setFormData] = useState({
-    cropName: '',
-    cropType: '',
-    cropImage: '',
+    name: '',
+    category: '',
+    image: '', // Single image URL
     quantity: '',
+    unit: 'pieces',
     pricePerUnit: '',
     location: '',
+    district: '',
     harvestDate: '',
-    description: ''
+    description: '',
+    status: 'available',
+    ownerPhone: '',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-
-    if (name === 'cropImage') {
-      setImagePreview(value);
-    }
+    if (name === 'image') setImagePreview(value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation
-    if (!formData.cropName.trim()) {
+    if (!formData.name.trim()) {
       toast.error('Please enter crop name');
       return;
     }
-    if (!formData.cropType) {
+    if (!formData.category) {
       toast.error('Please select crop type');
       return;
     }
-    if (!formData.cropImage.trim()) {
-      toast.error('Please enter image URL');
+    if (!formData.image.trim()) {
+      toast.error('Please enter an image URL');
       return;
     }
     if (!formData.quantity.trim()) {
@@ -77,6 +78,10 @@ const AddCrop = () => {
       toast.error('Please enter location');
       return;
     }
+    if (!formData.district.trim()) {
+      toast.error('Please enter district');
+      return;
+    }
     if (!formData.harvestDate) {
       toast.error('Please select harvest date');
       return;
@@ -85,27 +90,37 @@ const AddCrop = () => {
       toast.error('Please enter description');
       return;
     }
+    if (!formData.ownerPhone.trim()) {
+      toast.error('Please enter your phone number');
+      return;
+    }
 
     setLoading(true);
     try {
-
-      // Map frontend fields to backend API fields
+      // Prepare cropData in new backend format
       const cropData = {
-        title: formData.cropName,
+        name: formData.name,
         description: formData.description,
-        category: formData.cropType,
+        category: formData.category,
         quantity: parseFloat(formData.quantity),
+        unit: formData.unit,
         pricePerUnit: parseFloat(formData.pricePerUnit),
         location: formData.location,
+        district: formData.district,
+        image: formData.image,
         harvestDate: formData.harvestDate,
-        imageUrl: formData.cropImage,
-        // Optionally add unit and isOrganic if you want
-        // unit: 'kg',
-        // isOrganic: false,
+        status: 'available',
+        owner: {
+          uid: user?.uid || '',
+          displayName: user?.displayName || '',
+          email: user?.email || '',
+          photoURL: user?.photoURL || '',
+          phone: formData.ownerPhone,
+        },
+        interests: [],
       };
 
       const response = await cropsAPI.create(cropData);
-      console.log('Crop POST response:', response);
       if (response && response.status === 201) {
         toast.success('Crop added successfully!');
         navigate('/my-posts');
@@ -135,7 +150,7 @@ const AddCrop = () => {
 
         <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Crop Name & Type */}
+            {/* Crop Name & Category */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -144,10 +159,10 @@ const AddCrop = () => {
                 </label>
                 <input
                   type="text"
-                  name="cropName"
-                  value={formData.cropName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
-                  placeholder="e.g., Fresh Tomatoes"
+                  placeholder="e.g., পেঁপে"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 />
@@ -156,16 +171,16 @@ const AddCrop = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <HiClipboardList className="inline mr-2 text-green-600" />
-                  Crop Type *
+                  Category *
                 </label>
                 <select
-                  name="cropType"
-                  value={formData.cropType}
+                  name="category"
+                  value={formData.category}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 >
-                  <option value="">Select type</option>
+                  <option value="">Select category</option>
                   {cropTypes.map(type => (
                     <option key={type} value={type}>{type}</option>
                   ))}
@@ -181,8 +196,8 @@ const AddCrop = () => {
               </label>
               <input
                 type="url"
-                name="cropImage"
-                value={formData.cropImage}
+                name="image"
+                value={formData.image}
                 onChange={handleChange}
                 placeholder="https://example.com/image.jpg"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -200,8 +215,8 @@ const AddCrop = () => {
               )}
             </div>
 
-            {/* Quantity & Price */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Quantity, Unit & Price */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <FaWeight className="inline mr-2 text-green-600" />
@@ -212,12 +227,30 @@ const AddCrop = () => {
                   name="quantity"
                   value={formData.quantity}
                   onChange={handleChange}
-                  placeholder="e.g., 100 kg, 50 maunds"
+                  placeholder="e.g., 100"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Unit *
+                </label>
+                <select
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                >
+                  <option value="pieces">pieces</option>
+                  <option value="kg">kg</option>
+                  <option value="maunds">maunds</option>
+                  <option value="tons">tons</option>
+                  <option value="liters">liters</option>
+                  <option value="other">other</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <HiCurrencyBangladeshi className="inline mr-2 text-green-600" />
@@ -228,7 +261,7 @@ const AddCrop = () => {
                   name="pricePerUnit"
                   value={formData.pricePerUnit}
                   onChange={handleChange}
-                  placeholder="e.g., 50"
+                  placeholder="e.g., 40"
                   min="1"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
@@ -236,8 +269,8 @@ const AddCrop = () => {
               </div>
             </div>
 
-            {/* Location & Harvest Date */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Location, District & Harvest Date */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <HiLocationMarker className="inline mr-2 text-green-600" />
@@ -248,12 +281,25 @@ const AddCrop = () => {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="e.g., Dhaka, Bangladesh"
+                  placeholder="e.g., গাজীপুর, ঢাকা"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   required
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  District *
+                </label>
+                <input
+                  type="text"
+                  name="district"
+                  value={formData.district}
+                  onChange={handleChange}
+                  placeholder="e.g., Gazipur"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <HiCalendar className="inline mr-2 text-green-600" />
@@ -286,10 +332,10 @@ const AddCrop = () => {
               />
             </div>
 
-            {/* Owner Info (Read-only) */}
+            {/* Owner Info */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-2">Listing as:</p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-2">
                 {user?.photoURL ? (
                   <img
                     src={user.photoURL}
@@ -305,6 +351,18 @@ const AddCrop = () => {
                   <p className="font-medium text-gray-800">{user?.displayName || 'User'}</p>
                   <p className="text-sm text-gray-500">{user?.email}</p>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                <input
+                  type="text"
+                  name="ownerPhone"
+                  value={formData.ownerPhone}
+                  onChange={handleChange}
+                  placeholder="e.g., +8801712345678"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
               </div>
             </div>
 
