@@ -19,15 +19,15 @@ const MyInterests = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await interestsAPI.getByUser(user.email);
-      setInterests(response.data);
+      const response = await interestsAPI.getMyInterests();
+      setInterests(response.data?.data || []);
     } catch (err) {
       setError('Failed to load your interests. Please try again.');
       console.error('Error fetching interests:', err);
     } finally {
       setLoading(false);
     }
-  }, [user?.email]);
+  }, []);
 
   useEffect(() => {
     if (user?.email) {

@@ -101,11 +101,11 @@ export const interestsAPI = {
   // Get interests for a specific crop (owner only)
   getByCrop: (cropId) => api.get(`/api/interests/${cropId}`),
 
-  // Get interests submitted by user (not used here)
-  getByUser: (email) => api.get(`/api/interests/user/${email}`),
+  // Get current user's submitted interests
+  getMyInterests: () => api.get('/api/interests/my-interests'),
 
-  // Check if user has already submitted interest (not implemented in backend, needs implementation if required)
-  checkSubmitted: (cropId, email) => Promise.resolve({ data: { hasSubmitted: false } }),
+  // Check if user has already submitted interest
+  checkSubmitted: (cropId, email) => api.get(`/api/interests/check/${cropId}/${email}`),
 
   // Update interest status (owner only)
   updateStatus: (id, status) => api.patch(`/api/interests/${id}`, { status }),
