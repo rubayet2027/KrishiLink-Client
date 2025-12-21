@@ -32,7 +32,7 @@ const AddCrop = () => {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    image: '', // Single image URL
+    image: '', // Single image URL (input only)
     quantity: '',
     unit: 'pieces',
     pricePerUnit: '',
@@ -98,6 +98,9 @@ const AddCrop = () => {
     setLoading(true);
     try {
       // Prepare cropData in new backend format
+      const imagesArr = (typeof formData.image === 'string' && formData.image.trim().length > 0)
+        ? [formData.image.trim()]
+        : [];
       const cropData = {
         name: formData.name,
         description: formData.description,
@@ -107,7 +110,7 @@ const AddCrop = () => {
         pricePerUnit: parseFloat(formData.pricePerUnit),
         location: formData.location,
         district: formData.district,
-        image: formData.image,
+        images: imagesArr,
         harvestDate: formData.harvestDate,
         status: 'available',
         owner: {

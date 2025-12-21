@@ -18,7 +18,7 @@ const CropCard = ({ crop }) => {
   } = crop;
 
   const displayTitle = name || 'Crop';
-  const displayImage = Array.isArray(images) && images.length > 0 ? images[0] : images[1];
+  const displayImage = Array.isArray(images) && images.length > 0 ? images[0] : images[1] || '';
   const displayCategory = category || '';
   const displayOwnerName = owner.displayName || owner.email || 'User';
   const displayOwnerPhoto = owner.photoURL || '';
