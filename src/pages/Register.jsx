@@ -76,15 +76,17 @@ const Register = () => {
     setLoading(true);
     try {
       // Create user with Firebase
-      await createUser(formData.email, formData.password);
-      
+      const userCredential = await createUser(formData.email, formData.password);
+      const firebaseUser = userCredential.user;
+
       // Update profile
       await updateUserProfile(formData.name, formData.photoURL);
 
-      // Save user to database
+      // Save user to database (send uid and email)
       await usersAPI.saveUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
         name: formData.name,
-        email: formData.email,
         photoURL: formData.photoURL,
         createdAt: new Date().toISOString()
       });

@@ -224,7 +224,10 @@ const CropDetails = () => {
 
             {/* Interests Tab (Owner Only) */}
             {activeTab === 'interests' && isOwner && (
-              <InterestTable interests={interests} onStatusUpdate={fetchInterests} />
+              <InterestTable
+                interests={interests.map(i => ({ ...i, cropId: id }))}
+                onStatusUpdate={fetchInterests}
+              />
             )}
           </div>
 

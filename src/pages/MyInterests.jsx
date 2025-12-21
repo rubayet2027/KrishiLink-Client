@@ -12,6 +12,7 @@ import { interestsAPI } from '../services/api';
 const MyInterests = () => {
   const { user } = useAuth();
   const [interests, setInterests] = useState([]);
+  const [sort, setSort] = useState('newest');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,7 +20,7 @@ const MyInterests = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await interestsAPI.getMyInterests();
+      const response = await interestsAPI.getMyInterests({ sort });
       setInterests(response.data?.data || []);
     } catch (err) {
       setError('Failed to load your interests. Please try again.');
@@ -27,7 +28,7 @@ const MyInterests = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sort]);
 
   useEffect(() => {
     if (user?.email) {
@@ -78,6 +79,21 @@ const MyInterests = () => {
           title="My Interests"
           subtitle="Track all the crops you've expressed interest in"
         />
+
+        <div className="mb-6 flex justify-end">
+          <label className="mr-2 text-sm text-gray-600">Sort by:</label>
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
 
         {interests.length === 0 ? (
           <EmptyState

@@ -6,10 +6,10 @@ import toast from 'react-hot-toast';
 const InterestTable = ({ interests, onStatusUpdate }) => {
   const [updatingId, setUpdatingId] = useState(null);
 
-  const handleStatusUpdate = async (interestId, newStatus) => {
+  const handleStatusUpdate = async (cropId, interestId, newStatus) => {
     setUpdatingId(interestId);
     try {
-      await interestsAPI.updateStatus(interestId, newStatus);
+      await interestsAPI.updateStatus(cropId, interestId, newStatus);
       toast.success(`Interest ${newStatus === 'accepted' ? 'accepted' : 'rejected'} successfully`);
       onStatusUpdate?.();
     } catch {
@@ -128,14 +128,14 @@ const InterestTable = ({ interests, onStatusUpdate }) => {
                   {interest.status === 'pending' && (
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleStatusUpdate(interest._id, 'accepted')}
+                        onClick={() => handleStatusUpdate(interest.cropId, interest._id, 'accept')}
                         disabled={updatingId === interest._id}
                         className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors disabled:opacity-50"
                       >
                         Accept
                       </button>
                       <button
-                        onClick={() => handleStatusUpdate(interest._id, 'rejected')}
+                        onClick={() => handleStatusUpdate(interest.cropId, interest._id, 'reject')}
                         disabled={updatingId === interest._id}
                         className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors disabled:opacity-50"
                       >
