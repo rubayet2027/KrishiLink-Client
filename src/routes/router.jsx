@@ -12,6 +12,7 @@ import Register from '../pages/Register';
 import NotFound from '../pages/NotFound';
 import PrivateRoute from './PrivateRoute';
 
+
 const router = createBrowserRouter([
   {
     path: '/',

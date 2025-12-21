@@ -26,7 +26,7 @@ const CropDetails = () => {
   const [interests, setInterests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('details');
+  // Remove activeTab, use child route for manage interests
 
   // Use backend owner object for ownership check
   const isOwner = user && crop && crop.owner && user.email === crop.owner.email;
@@ -49,11 +49,15 @@ const CropDetails = () => {
 
   const fetchInterests = useCallback(async () => {
     if (!isOwner) return;
+    setLoading(true);
+    setError(null);
     try {
       const response = await interestsAPI.getByCrop(id);
-      setInterests(response.data);
-    } catch (err) {
-      console.error('Error fetching interests:', err);
+      setInterests(response.data?.data || []);
+    } catch {
+      setError('Failed to load interests.');
+    } finally {
+      setLoading(false);
     }
   }, [id, isOwner]);
 
@@ -141,94 +145,70 @@ const CropDetails = () => {
               </div>
             </div>
 
-            {/* Tabs for Owner */}
+            {/* Manage Interests Section for Owner */}
             {isOwner && (
-              <div className="bg-white rounded-xl shadow-md">
-                <div className="flex border-b">
-                  <button
-                    onClick={() => setActiveTab('details')}
-                    className={`flex-1 py-4 font-medium transition-colors ${
-                      activeTab === 'details'
-                        ? 'text-green-600 border-b-2 border-green-600'
-                        : 'text-gray-600 hover:text-green-600'
-                    }`}
-                  >
-                    Crop Details
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('interests')}
-                    className={`flex-1 py-4 font-medium transition-colors flex items-center justify-center gap-2 ${
-                      activeTab === 'interests'
-                        ? 'text-green-600 border-b-2 border-green-600'
-                        : 'text-gray-600 hover:text-green-600'
-                    }`}
-                  >
-                    <HiClipboardList />
-                    Manage Interests
-                    {interests.length > 0 && (
-                      <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs">
-                        {interests.length}
-                      </span>
-                    )}
-                  </button>
-                </div>
+              <div className="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <HiClipboardList /> Manage Interests
+                  {interests.length > 0 && (
+                    <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs">
+                      {interests.length}
+                    </span>
+                  )}
+                </h2>
+                <InterestTable
+                  interests={interests.map(i => ({ ...i, cropId: id }))}
+                  onStatusUpdate={fetchInterests}
+                />
               </div>
             )}
 
-            {/* Details Tab */}
-            {activeTab === 'details' && (
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">{name}</h1>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 text-green-600 mb-1">
-                      <HiCurrencyBangladeshi className="text-xl" />
-                      <span className="text-sm font-medium">Price</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800">৳{pricePerUnit}</p>
+            {/* Crop Details Section (always shown) */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">{name}</h1>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-600 mb-1">
+                    <HiCurrencyBangladeshi className="text-xl" />
+                    <span className="text-sm font-medium">Price</span>
                   </div>
-                  <div className="bg-amber-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 text-amber-600 mb-1">
-                      <FaWeight className="text-lg" />
-                      <span className="text-sm font-medium">Quantity</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800">{quantity} {unit}</p>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                      <HiCalendar className="text-xl" />
-                      <span className="text-sm font-medium">Harvest</span>
-                    </div>
-                    <p className="text-lg font-bold text-gray-800">
-                      {harvestDate ? new Date(harvestDate).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      }) : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 text-purple-600 mb-1">
-                      <HiLocationMarker className="text-xl" />
-                      <span className="text-sm font-medium">Location</span>
-                    </div>
-                    <p className="text-lg font-bold text-gray-800 truncate">{location}</p>
-                  </div>
+                  <p className="text-2xl font-bold text-gray-800">৳{pricePerUnit}</p>
                 </div>
-                <div className="border-t pt-6">
-                  <h2 className="text-xl font-bold text-gray-800 mb-3">Description</h2>
-                  <p className="text-gray-600 leading-relaxed">{description}</p>
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-amber-600 mb-1">
+                    <FaWeight className="text-lg" />
+                    <span className="text-sm font-medium">Quantity</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{quantity} {unit}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-blue-600 mb-1">
+                    <HiCalendar className="text-xl" />
+                    <span className="text-sm font-medium">Harvest</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-800">
+                    {harvestDate ? new Date(harvestDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    }) : 'N/A'}
+                  </p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 text-purple-600 mb-1">
+                    <HiLocationMarker className="text-xl" />
+                    <span className="text-sm font-medium">Location</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-800 truncate">{location}</p>
                 </div>
               </div>
-            )}
+              <div className="border-t pt-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-3">Description</h2>
+                <p className="text-gray-600 leading-relaxed">{description}</p>
+              </div>
+            </div>
 
-            {/* Interests Tab (Owner Only) */}
-            {activeTab === 'interests' && isOwner && (
-              <InterestTable
-                interests={interests.map(i => ({ ...i, cropId: id }))}
-                onStatusUpdate={fetchInterests}
-              />
-            )}
+
           </div>
 
           {/* Sidebar */}
