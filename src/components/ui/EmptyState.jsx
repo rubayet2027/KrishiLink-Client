@@ -1,13 +1,14 @@
 import { HiInbox } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 
-const EmptyState = ({ 
-  title = 'No data found', 
-  description = 'There is nothing to display here yet.',
-  icon: IconComponent = HiInbox,
-  actionLabel,
-  actionLink 
-}) => {
+const EmptyState = (props) => {
+  const {
+    title = 'No data found',
+    description = 'There is nothing to display here yet.',
+    icon: IconComponent = HiInbox,
+    actionLabel,
+    actionLink
+  } = props;
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <IconComponent className="text-6xl text-gray-300 mb-4" />
